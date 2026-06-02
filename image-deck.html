@@ -151,6 +151,18 @@
       color: #c9a96e;
     }
 
+    .back-link {
+      margin-top: 28px;
+      color: #a09080;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border-bottom: 1px solid #a0908044;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .back-link:hover { color: #c9a96e; border-bottom-color: #c9a96e; }
+
     #empty-msg {
       display: none;
       font-size: 0.95rem;
@@ -273,6 +285,8 @@
     buildDeck();
     dealFaceDown();
   </script>
+
+  <a class="back-link" href="index.html">← Back to tools</a>
 
 </body>
 </html>
