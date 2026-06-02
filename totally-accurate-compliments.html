@@ -179,6 +179,7 @@
       border: 2px solid #5a4a2a;
       border-radius: 6px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -209,6 +210,31 @@
     .name-display {
       color: #c9a96e;
       font-style: normal;
+    }
+
+    #copy-btn {
+      margin-top: 12px;
+      padding: 7px 18px;
+      background: transparent;
+      border: 1px solid #5a4a2a;
+      border-radius: 4px;
+      color: #7a6a3a;
+      font-family: Georgia, serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      display: none;
+    }
+
+    #copy-btn:hover {
+      border-color: #c9a96e;
+      color: #c9a96e;
+    }
+
+    #copy-btn.copied {
+      border-color: #6a9a6a;
+      color: #6a9a6a;
     }
 
     /* Progress bar */
@@ -300,6 +326,7 @@
       <div class="output-panel" id="output-panel">
         <div class="thinking-display" id="thinking-display"></div>
         <div class="output-text" id="output-text"></div>
+        <button id="copy-btn" onclick="copyCompliment()">📋 Copy to clipboard</button>
       </div>
 
       <p class="fine-print">
@@ -413,6 +440,7 @@
       // Reset
       output.style.display = 'none';
       output.textContent = '';
+      document.getElementById('copy-btn').style.display = 'none';
       thinking.style.display = 'block';
       panel.classList.add('active');
 
@@ -445,9 +473,27 @@
         output.innerHTML = `<span class="name-display">${escapeHtml(name)}</span> — ${compliment}.`;
         output.style.display = 'block';
 
+        const copyBtn = document.getElementById('copy-btn');
+        copyBtn.style.display = 'block';
+        copyBtn.textContent = '📋 Copy to clipboard';
+        copyBtn.classList.remove('copied');
+        copyBtn.dataset.text = `${name} — ${compliment}.`;
+
         busy = false;
         document.getElementById('go-btn').disabled = false;
       }, 5000);
+    }
+
+    function copyCompliment() {
+      const btn = document.getElementById('copy-btn');
+      navigator.clipboard.writeText(btn.dataset.text).then(() => {
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '📋 Copy to clipboard';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
     }
 
     function escapeHtml(str) {
