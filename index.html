@@ -3,19 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strategic Thinking Cards</title>
+  <title>Workshop Tools</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    #byline {
-      position: fixed;
-      top: 16px;
-      right: 20px;
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
-      color: #c9a96e;
-      letter-spacing: 0.08em;
-      opacity: 0.75;
-    }
 
     body {
       min-height: 100vh;
@@ -29,134 +19,65 @@
       padding: 24px;
     }
 
+    #byline {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      color: #c9a96e;
+      letter-spacing: 0.08em;
+      opacity: 0.75;
+    }
+
     h1 {
       font-size: clamp(1.2rem, 3vw, 1.8rem);
       letter-spacing: 0.08em;
-      margin-bottom: 8px;
-      text-align: center;
       color: #c9a96e;
-    }
-
-    #deck-count {
-      font-size: 0.85rem;
-      color: #a09080;
-      margin-bottom: 32px;
       text-align: center;
-      min-height: 1.2em;
+      margin-bottom: 48px;
     }
 
-    #cards-area {
+    .tools {
       display: flex;
       gap: clamp(16px, 4vw, 40px);
-      justify-content: center;
-      align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 36px;
+      justify-content: center;
     }
 
-    .card-slot {
-      perspective: 1000px;
-      width: clamp(160px, 30vw, 280px);
-      aspect-ratio: 2 / 3;
-      cursor: pointer;
-    }
-
-    .card-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s ease;
-      border-radius: 12px;
-    }
-
-    .card-slot.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-face, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-
-    .card-face {
-      transform: rotateY(180deg);
-    }
-
-    .card-face img, .card-back img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .flip-hint {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.55);
-      color: #f0e6d3;
-      text-align: center;
-      padding: 10px 8px;
-      font-size: clamp(0.7rem, 2vw, 0.85rem);
-      letter-spacing: 0.05em;
-      border-radius: 0 0 12px 12px;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .card-slot.flipped .flip-hint {
-      opacity: 0;
-    }
-
-    #buttons {
+    .tool-card {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    button {
-      padding: 12px 32px;
+      text-decoration: none;
+      padding: 32px 28px;
       border: 2px solid #c9a96e;
-      background: transparent;
-      color: #c9a96e;
-      font-family: Georgia, serif;
-      font-size: 1rem;
-      letter-spacing: 0.06em;
-      border-radius: 6px;
-      cursor: pointer;
+      border-radius: 12px;
+      width: clamp(200px, 30vw, 280px);
       transition: background 0.2s, color 0.2s;
+      color: #f0e6d3;
     }
 
-    button:hover {
-      background: #c9a96e;
-      color: #1a1a2e;
+    .tool-card:hover {
+      background: rgba(201, 169, 110, 0.1);
     }
 
-    button:disabled {
-      opacity: 0.35;
-      cursor: default;
+    .tool-card .icon {
+      font-size: 2.5rem;
     }
 
-    button:disabled:hover {
-      background: transparent;
+    .tool-card .name {
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
       color: #c9a96e;
+      text-align: center;
     }
 
-    #empty-msg {
-      display: none;
-      font-size: 0.95rem;
+    .tool-card .desc {
+      font-size: 0.8rem;
       color: #a09080;
       text-align: center;
-      margin-bottom: 24px;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -164,115 +85,20 @@
 
   <div id="byline">Rosie Bryce</div>
 
-  <h1>Strategic Thinking Cards</h1>
-  <div id="deck-count"></div>
-  <div id="empty-msg">The deck is empty — reset to play again.</div>
+  <h1>Workshop Tools</h1>
 
-  <div id="cards-area">
-    <div class="card-slot" id="card-a" onclick="flipCard(this)">
-      <div class="card-inner">
-        <div class="card-back"><img src="assets/Slide59.PNG" alt="Card back"></div>
-        <div class="card-face"><img id="img-a" src="" alt="Card A"></div>
-      </div>
-      <div class="flip-hint">Click to reveal</div>
-    </div>
-    <div class="card-slot" id="card-b" onclick="flipCard(this)">
-      <div class="card-inner">
-        <div class="card-back"><img src="assets/Slide59.PNG" alt="Card back"></div>
-        <div class="card-face"><img id="img-b" src="" alt="Card B"></div>
-      </div>
-      <div class="flip-hint">Click to reveal</div>
-    </div>
+  <div class="tools">
+    <a class="tool-card" href="image-deck.html">
+      <div class="icon">🃏</div>
+      <div class="name">Strategic Thinking Cards</div>
+      <div class="desc">Draw and reveal cards from a shuffled deck</div>
+    </a>
+    <a class="tool-card" href="totally-accurate-compliments.html">
+      <div class="icon">✨</div>
+      <div class="name">Totally Accurate Compliments™</div>
+      <div class="desc">100% scientifically verified compliments</div>
+    </a>
   </div>
-
-  <div id="buttons">
-    <button id="btn-draw" onclick="drawCards()">Draw Again</button>
-    <button id="btn-reset" onclick="resetDeck()">Reset Deck</button>
-  </div>
-
-  <script>
-    const BACK = "assets/Slide59.PNG";
-    // Slide36.PNG is missing — excluded from deck
-    const EXCLUDED = new Set([36]);
-
-    let deck = [];
-
-    function buildDeck() {
-      deck = [];
-      for (let i = 1; i <= 58; i++) {
-        if (!EXCLUDED.has(i)) deck.push(i);
-      }
-      shuffle(deck);
-    }
-
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-    }
-
-    function updateCount() {
-      const el = document.getElementById('deck-count');
-      el.textContent = deck.length > 0
-        ? `${deck.length} card${deck.length === 1 ? '' : 's'} remaining in deck`
-        : '';
-    }
-
-    function flipCard(slot) {
-      if (!slot.classList.contains('flipped')) {
-        slot.classList.add('flipped');
-      }
-    }
-
-    // Pre-load two cards from the deck into the slots (face-down)
-    // Images are ready so the flip reveals something immediately
-    function dealFaceDown() {
-      const numA = deck.pop();
-      const numB = deck.pop();
-      document.getElementById('img-a').src = `assets/Slide${numA}.PNG`;
-      document.getElementById('img-b').src = `assets/Slide${numB}.PNG`;
-      updateCount();
-      document.getElementById('btn-draw').disabled = deck.length < 2;
-    }
-
-    function drawCards() {
-      if (deck.length < 2) {
-        document.getElementById('empty-msg').style.display = 'block';
-        document.getElementById('btn-draw').disabled = true;
-        return;
-      }
-
-      document.getElementById('empty-msg').style.display = 'none';
-
-      const slotA = document.getElementById('card-a');
-      const slotB = document.getElementById('card-b');
-
-      // Unflip cards, then swap images after the flip-back animation
-      slotA.classList.remove('flipped');
-      slotB.classList.remove('flipped');
-
-      setTimeout(() => dealFaceDown(), 350);
-    }
-
-    function resetDeck() {
-      buildDeck();
-      document.getElementById('empty-msg').style.display = 'none';
-      document.getElementById('btn-draw').disabled = false;
-
-      const slotA = document.getElementById('card-a');
-      const slotB = document.getElementById('card-b');
-      slotA.classList.remove('flipped');
-      slotB.classList.remove('flipped');
-
-      // Load fresh cards after unflip animation
-      setTimeout(() => dealFaceDown(), 350);
-    }
-
-    // Initialise — build deck and pre-load first two cards face-down
-    buildDeck();
-    dealFaceDown();
-  </script>
 
 </body>
 </html>
