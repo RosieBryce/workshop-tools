@@ -9,7 +9,7 @@
 
     body {
       min-height: 100vh;
-      background: #1a1a2e;
+      background: #1a1a1a;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -17,35 +17,448 @@
       font-family: Georgia, serif;
       color: #f0e6d3;
       padding: 24px;
+      overflow: hidden;
     }
+
+    /* Animated cogs in background */
+    .cog {
+      position: fixed;
+      opacity: 0.06;
+      animation: spin linear infinite;
+      font-size: 120px;
+      user-select: none;
+      pointer-events: none;
+    }
+    .cog:nth-child(1) { top: -20px; left: -20px; font-size: 160px; animation-duration: 18s; }
+    .cog:nth-child(2) { top: 10px; left: 110px; font-size: 80px; animation-duration: 10s; animation-direction: reverse; }
+    .cog:nth-child(3) { bottom: -20px; right: -20px; font-size: 180px; animation-duration: 22s; }
+    .cog:nth-child(4) { bottom: 20px; right: 130px; font-size: 90px; animation-duration: 12s; animation-direction: reverse; }
+    .cog:nth-child(5) { top: 40%; left: -30px; font-size: 100px; animation-duration: 15s; }
+    .cog:nth-child(6) { top: 30%; right: -30px; font-size: 130px; animation-duration: 20s; animation-direction: reverse; }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Main container */
+    .machine {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    /* Title plate */
+    .title-plate {
+      background: #2a1f0a;
+      border: 3px solid #c9a96e;
+      border-radius: 8px 8px 0 0;
+      padding: 18px 32px 14px;
+      text-align: center;
+      width: 100%;
+      position: relative;
+    }
+
+    .title-plate::before,
+    .title-plate::after {
+      content: '◆';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #c9a96e;
+      font-size: 0.8rem;
+    }
+    .title-plate::before { left: 12px; }
+    .title-plate::after { right: 12px; }
 
     h1 {
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
-      letter-spacing: 0.08em;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      letter-spacing: 0.1em;
       color: #c9a96e;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 0.72rem;
+      color: #a09060;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Machine body */
+    .machine-body {
+      background: #221a08;
+      border: 3px solid #c9a96e;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 32px 32px 36px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* Instruction */
+    .instruction {
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      color: #d4b87a;
       text-align: center;
+      line-height: 1.6;
+      font-style: italic;
     }
 
-    p {
-      color: #a09080;
-      margin-top: 16px;
+    /* Name input */
+    .input-row {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      max-width: 420px;
     }
 
-    a {
-      margin-top: 40px;
-      color: #c9a96e;
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      background: #0d0d0d;
+      border: 2px solid #c9a96e;
+      border-right: none;
+      border-radius: 6px 0 0 6px;
+      color: #f0e6d3;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: #5a4a2a;
+      font-style: italic;
+    }
+
+    input[type="text"]:focus {
+      border-color: #e8c97e;
+      background: #111108;
+    }
+
+    button#go-btn {
+      padding: 12px 24px;
+      background: #c9a96e;
+      border: 2px solid #c9a96e;
+      border-radius: 0 6px 6px 0;
+      color: #1a1a1a;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+
+    button#go-btn:hover:not(:disabled) {
+      background: #e8c97e;
+      border-color: #e8c97e;
+    }
+
+    button#go-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* Thinking display */
+    .output-panel {
+      width: 100%;
+      max-width: 420px;
+      min-height: 110px;
+      background: #0d0d0d;
+      border: 2px solid #5a4a2a;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: border-color 0.4s;
+    }
+
+    .output-panel.active {
+      border-color: #c9a96e;
+    }
+
+    .output-text {
+      font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+      color: #f0e6d3;
+      text-align: center;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .thinking-display {
       font-size: 0.85rem;
+      color: #7a6a3a;
+      text-align: center;
+      font-style: italic;
+      letter-spacing: 0.05em;
+      display: none;
+    }
+
+    .name-display {
+      color: #c9a96e;
+      font-style: normal;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%;
+      max-width: 420px;
+      height: 4px;
+      background: #2a1f0a;
+      border-radius: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .progress-wrap.visible { opacity: 1; }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #8a6a2a, #c9a96e, #8a6a2a);
+      background-size: 200% 100%;
+      border-radius: 2px;
+      transition: width 4.8s cubic-bezier(0.4, 0, 0.6, 1);
+      animation: shimmer 1.5s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Fine print */
+    .fine-print {
+      font-size: 0.65rem;
+      color: #4a3a1a;
+      text-align: center;
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+    }
+
+    /* Back link */
+    .back-link {
+      margin-top: 28px;
+      color: #5a4a2a;
+      font-size: 0.8rem;
       letter-spacing: 0.05em;
       text-decoration: none;
-      border-bottom: 1px solid #c9a96e44;
+      border-bottom: 1px solid #3a2a0a;
+      transition: color 0.2s, border-color 0.2s;
+      z-index: 1;
     }
+    .back-link:hover { color: #c9a96e; border-bottom-color: #c9a96e; }
 
-    a:hover { border-bottom-color: #c9a96e; }
   </style>
 </head>
 <body>
-  <h1>Totally Accurate Compliments™</h1>
-  <p>Coming soon.</p>
-  <a href="index.html">← Back to tools</a>
+
+  <!-- Background cogs -->
+  <div class="cog">⚙</div>
+  <div class="cog">⚙</div>
+  <div class="cog">⚙</div>
+  <div class="cog">⚙</div>
+  <div class="cog">⚙</div>
+  <div class="cog">⚙</div>
+
+  <div class="machine">
+
+    <div class="title-plate">
+      <h1>Totally Accurate Compliments™</h1>
+      <div class="subtitle">Precision-engineered flattery since 2025</div>
+    </div>
+
+    <div class="machine-body">
+
+      <p class="instruction">
+        Say the name of the person you wish to compliment.<br>
+        The machine will do the rest.
+      </p>
+
+      <div class="input-row">
+        <input type="text" id="name-input" placeholder="Enter a name…" maxlength="40" autocomplete="off" />
+        <button id="go-btn" onclick="generate()">Analyse ⚙</button>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="output-panel" id="output-panel">
+        <div class="thinking-display" id="thinking-display"></div>
+        <div class="output-text" id="output-text"></div>
+      </div>
+
+      <p class="fine-print">
+        Results are 100% scientifically accurate and entirely irrefutable.<br>
+        No responsibility accepted for excessive warmth generated.
+      </p>
+
+    </div>
+
+  </div>
+
+  <a class="back-link" href="index.html">← Back to tools</a>
+
+  <script>
+    const COMPLIMENTS = [
+      "You look like you always return your shopping trolley",
+      "You probably put the right amount of milk in people's tea",
+      "I bet you write really satisfying to-do lists",
+      "You look like someone who always replies to texts",
+      "I can just tell you're good at parallel parking",
+      "You strike me as someone who reseals bags properly",
+      "You look like you always let people merge in traffic",
+      "I bet you're excellent at estimating how full a dishwasher is",
+      "You seem like someone who checks the weather the night before",
+      "I can tell you'd put the new toilet roll on the holder, not just leave it on the side",
+      "You look like you always know which pocket your keys are in",
+      "I bet you've never once sent an email to the wrong person",
+      "You strike me as someone who arrives exactly on time, not weirdly early or late",
+      "I reckon you always pick a good queue",
+      "I bet you're brilliant at untying knots",
+      "You look like you'd win at Jenga",
+      "I'm convinced you make excellent toast",
+      "You seem like you'd be very good at finding a seat on a busy train",
+      "I bet your handshake is exactly the right firmness",
+      "You look like you know how to fold a map",
+      "I bet you're brilliant at peeling stickers off cleanly",
+      "I'm convinced you can open a crisp packet very quietly",
+      "You seem like you'd be excellent at guessing the weight of things",
+      "I bet you're very good at remembering which way you came from in a car park",
+      "You look like you could assemble flat-pack furniture without swearing",
+      "I reckon you'd be brilliant at catching something someone just knocked off a table",
+      "You seem like the kind of person who can whistle properly",
+      "I have a feeling your gut instincts have a really good track record",
+      "Your inner voice probably has excellent comic timing",
+      "I bet your imagination has a very interesting cast of characters",
+      "I reckon your memory palace is beautifully organised",
+      "Your sense of what's slightly funny is probably very finely tuned",
+      "I bet your brain makes really satisfying connections when you're not paying attention",
+      "I have a feeling your subconscious has excellent taste",
+      "I bet your personal radius is a very comfortable size",
+      "I have a feeling you take up exactly the right amount of space",
+      "I bet you arrive in rooms at just the right moment",
+      "I bet you've had some really excellent Tuesdays",
+      "Your best day so far was probably genuinely spectacular",
+      "I have a feeling your Thursday afternoons are underrated",
+      "The specific moment you last laughed really hard was probably a good one",
+      "I reckon you've been in some rooms that were really worth being in",
+      "Your 3pm's are probably better than most people's",
+      "I bet at least one of your Mondays has been secretly great",
+      "The specific combination of atoms that makes you up is genuinely unprecedented",
+      "You've made it to today, which has a 100% success rate for you",
+      "Statistically, the chances of you existing at all were basically zero and yet here you are",
+      "You represent millions of years of things going pretty well",
+      "Every version of you that existed at age seven would be proud of how tall you got",
+      "I bet the best version of you and the actual you are not very far apart",
+      "Every decision you've ever made has led to you being exactly here, which seems fine",
+      "I have a feeling the universe has quietly noted several things you've done",
+      "Your existence has almost certainly caused at least one butterfly effect you'll never know about",
+      "I reckon you've changed someone's day without realising it",
+      "The specific chapter of history you've landed in suits you",
+      "I bet you've been someone's reason to smile on a day you don't even remember",
+      "Every atom in your body has been around since the beginning of the universe and they've clearly made good choices",
+      "I have a feeling the universe noticed when you walked in",
+      "Your timeline is probably one of the more interesting ones",
+      "I bet alternate versions of you are also doing quite well",
+      "The particular frequency at which your atoms vibrate is almost certainly lovely"
+    ];
+
+    const THINKING_PHRASES = [
+      "Cross-referencing universal data…",
+      "Consulting the compliment archives…",
+      "Analysing vibrational frequency…",
+      "Running personality inference…",
+      "Checking historical Tuesday records…",
+      "Calibrating flattery output…",
+      "Processing atomic signature…",
+      "Verifying queue-picking instincts…",
+    ];
+
+    let busy = false;
+
+    function generate() {
+      if (busy) return;
+
+      const nameInput = document.getElementById('name-input');
+      const name = nameInput.value.trim();
+      if (!name) {
+        nameInput.focus();
+        return;
+      }
+
+      busy = true;
+      document.getElementById('go-btn').disabled = true;
+
+      const panel = document.getElementById('output-panel');
+      const thinking = document.getElementById('thinking-display');
+      const output = document.getElementById('output-text');
+      const progressWrap = document.getElementById('progress-wrap');
+      const progressBar = document.getElementById('progress-bar');
+
+      // Reset
+      output.style.display = 'none';
+      output.textContent = '';
+      thinking.style.display = 'block';
+      panel.classList.add('active');
+
+      // Start progress bar
+      progressWrap.classList.add('visible');
+      progressBar.style.width = '0%';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          progressBar.style.width = '100%';
+        });
+      });
+
+      // Cycle thinking phrases
+      let phraseIndex = 0;
+      thinking.textContent = THINKING_PHRASES[phraseIndex];
+      const phraseInterval = setInterval(() => {
+        phraseIndex = (phraseIndex + 1) % THINKING_PHRASES.length;
+        thinking.textContent = THINKING_PHRASES[phraseIndex];
+      }, 700);
+
+      // Reveal after 5 seconds
+      setTimeout(() => {
+        clearInterval(phraseInterval);
+        thinking.style.display = 'none';
+        progressWrap.classList.remove('visible');
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+
+        const compliment = COMPLIMENTS[Math.floor(Math.random() * COMPLIMENTS.length)];
+        output.innerHTML = `<span class="name-display">${escapeHtml(name)}</span> — ${compliment}.`;
+        output.style.display = 'block';
+
+        busy = false;
+        document.getElementById('go-btn').disabled = false;
+      }, 5000);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Allow Enter key to trigger
+    document.getElementById('name-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') generate();
+    });
+  </script>
+
 </body>
 </html>
