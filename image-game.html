@@ -7,7 +7,6 @@
 <style>
   :root {
     --bg: #14110f;
-    --panel: #1d1916;
     --gold: #d4a843;
     --gold-dim: #8a7335;
     --text: #f3ead8;
@@ -16,7 +15,6 @@
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
-    height: 100%;
     background: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -43,10 +41,9 @@
     margin: 0 0 22px;
     max-width: 520px;
   }
-  /* The puzzle piece */
   #piece {
     width: min(70vw, 70vh, 460px);
-    aspect-ratio: 1 / 1;            /* updated to match the real tile once loaded */
+    aspect-ratio: 1 / 1;
     background-repeat: no-repeat;
     border: 3px solid var(--gold-dim);
     border-radius: 10px;
@@ -62,40 +59,19 @@
   }
   .controls {
     margin-top: 26px;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
   }
   button {
     background: transparent;
     color: var(--gold);
     border: 1.5px solid var(--gold-dim);
-    padding: 10px 18px;
+    padding: 10px 22px;
     border-radius: 30px;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.15s ease;
   }
   button:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-
-  /* Teacher reveal overlay */
-  #reveal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 24px;
-    z-index: 10;
-  }
-  #reveal.on { display: flex; }
-  #reveal img { max-width: 90vw; max-height: 80vh; border-radius: 8px; border: 2px solid var(--gold-dim); }
-  #reveal p { color: var(--muted); margin-top: 16px; }
-  .hint { color: var(--muted); font-size: 0.75rem; margin-top: 30px; max-width: 480px; }
-  a { color: var(--gold-dim); }
+  #copyBtn.copied { background: var(--gold); color: var(--bg); border-color: var(--gold); }
 </style>
 </head>
 <body>
@@ -104,92 +80,93 @@
   <p class="sub">You've been handed one piece of a bigger image. Describe your piece in the chat — work together to figure out what the whole picture is.</p>
 
   <div id="piece"></div>
-  <div id="pieceLabel">your piece</div>
+  <div id="pieceLabel">loading…</div>
 
   <div class="controls">
-    <button onclick="newPiece()">Give me a different piece</button>
-    <button onclick="toggleReveal()">Teacher: reveal full image</button>
-  </div>
-
-  <p class="hint">
-    Each refresh of this page gives a random piece. Some people will get the same piece — that's fine.
-    Add <code>?img=2</code> to the address to try a different image, or <code>?n=70</code> to chop it into more pieces.
-  </p>
-
-  <div id="reveal" onclick="toggleReveal()">
-    <img id="revealImg" alt="full image">
-    <p>(click anywhere to close)</p>
+    <button id="copyBtn" onclick="copyImage()">Copy image</button>
   </div>
 
 <script>
-  /* ============================================================
-     CONFIG — swap these for your own images.
-     For the workshop, drop image files into an "images/" folder
-     in this repo and use e.g. "images/eiffel.jpg" so nothing
-     depends on an external website staying up.
-     The URLs below are just so you can test right now.
-     ============================================================ */
   const IMAGES = [
-    "https://upload.wikimedia.org/wikipedia/commons/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg",   // 0 Eiffel Tower
-    "https://upload.wikimedia.org/wikipedia/commons/4/4c/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_%28454045%29.jpg", // 1 Van Gogh self-portrait
-    "https://upload.wikimedia.org/wikipedia/commons/8/87/Tsunami_by_hokusai_19th_century.jpg",  // 2 The Great Wave
+    { name: "Eiffel Tower",       url: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg" },
+    { name: "Van Gogh self-portrait", url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_%28454045%29.jpg" },
+    { name: "Big Ben",            url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Big_Ben_%28Queen_Elizabeth_Tower%29_13.jpg/960px-Big_Ben_%28Queen_Elizabeth_Tower%29_13.jpg" },
+    { name: "Sydney Opera House", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Sydney_opera_house_side_view.jpg/960px-Sydney_opera_house_side_view.jpg" },
+    { name: "Mona Lisa",          url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/960px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg" },
+    { name: "The Louvre",         url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Louvre_Museum_Wikimedia_Commons.jpg/1280px-Louvre_Museum_Wikimedia_Commons.jpg" },
   ];
 
-  // Target number of pieces. The grid is auto-sized from the image
-  // shape so each piece is roughly square. ~50 is a good default.
   let TARGET_PIECES = 50;
 
-  // --- read URL params (?img=, ?n=, ?reveal=1) ---
   const params = new URLSearchParams(location.search);
   let imgIndex = parseInt(params.get("img"));
-  if (isNaN(imgIndex) || imgIndex < 0 || imgIndex >= IMAGES.length) imgIndex = 0;
+  if (isNaN(imgIndex) || imgIndex < 0 || imgIndex >= IMAGES.length) imgIndex = 2; // default: Big Ben
   if (params.get("n")) TARGET_PIECES = Math.max(4, parseInt(params.get("n")) || 50);
 
   const pieceEl = document.getElementById("piece");
   const labelEl = document.getElementById("pieceLabel");
-  const revealEl = document.getElementById("reveal");
-  const revealImg = document.getElementById("revealImg");
+  const copyBtn = document.getElementById("copyBtn");
 
   let cols = 7, rows = 7;
-  const src = IMAGES[imgIndex];
+  let currentCol = 0, currentRow = 0;
+  let loadedImg = null;
 
-  // Load image first so we know its aspect ratio, then build the grid.
-  const probe = new Image();
-  probe.crossOrigin = "anonymous";
-  probe.onload = () => {
-    const aspect = probe.naturalWidth / probe.naturalHeight;
-    cols = Math.max(1, Math.round(Math.sqrt(TARGET_PIECES * aspect)));
-    rows = Math.max(1, Math.round(TARGET_PIECES / cols));
-
-    // Make the displayed piece match the true tile shape (no distortion).
-    const tileAspect = (probe.naturalWidth / cols) / (probe.naturalHeight / rows);
-    pieceEl.style.aspectRatio = tileAspect + " / 1";
-
-    pieceEl.style.backgroundImage = `url("${src}")`;
-    pieceEl.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
-    revealImg.src = src;
-
-    newPiece();
-    if (params.get("reveal") === "1") toggleReveal();
-  };
-  probe.onerror = () => {
-    labelEl.textContent = "couldn't load image — check the URL in IMAGES";
-  };
-  probe.src = src;
+  function loadImage(index) {
+    imgIndex = index;
+    const src = IMAGES[index].url;
+    labelEl.textContent = "loading…";
+    pieceEl.style.backgroundImage = "none";
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      loadedImg = img;
+      const aspect = img.naturalWidth / img.naturalHeight;
+      cols = Math.max(1, Math.round(Math.sqrt(TARGET_PIECES * aspect)));
+      rows = Math.max(1, Math.round(TARGET_PIECES / cols));
+      const tileAspect = (img.naturalWidth / cols) / (img.naturalHeight / rows);
+      pieceEl.style.aspectRatio = tileAspect + " / 1";
+      pieceEl.style.backgroundImage = `url("${src}")`;
+      pieceEl.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+      newPiece();
+    };
+    img.onerror = () => {
+      labelEl.textContent = "couldn't load image — URL may be broken";
+    };
+    img.src = src;
+  }
 
   function newPiece() {
-    const col = Math.floor(Math.random() * cols);
-    const row = Math.floor(Math.random() * rows);
-    const posX = cols === 1 ? 0 : (col * 100) / (cols - 1);
-    const posY = rows === 1 ? 0 : (row * 100) / (rows - 1);
+    currentCol = Math.floor(Math.random() * cols);
+    currentRow = Math.floor(Math.random() * rows);
+    const posX = cols === 1 ? 0 : (currentCol * 100) / (cols - 1);
+    const posY = rows === 1 ? 0 : (currentRow * 100) / (rows - 1);
     pieceEl.style.backgroundPosition = `${posX}% ${posY}%`;
-    const num = row * cols + col + 1;
+    const num = currentRow * cols + currentCol + 1;
     labelEl.textContent = `piece ${num} of ${cols * rows}`;
   }
 
-  function toggleReveal() {
-    revealEl.classList.toggle("on");
+  function copyImage() {
+    if (!loadedImg) return;
+    const tileW = Math.floor(loadedImg.naturalWidth / cols);
+    const tileH = Math.floor(loadedImg.naturalHeight / rows);
+    const canvas = document.createElement("canvas");
+    canvas.width = tileW;
+    canvas.height = tileH;
+    canvas.getContext("2d").drawImage(loadedImg, currentCol * tileW, currentRow * tileH, tileW, tileH, 0, 0, tileW, tileH);
+    canvas.toBlob(async (blob) => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        copyBtn.textContent = "Copied!";
+        copyBtn.classList.add("copied");
+        setTimeout(() => { copyBtn.textContent = "Copy image"; copyBtn.classList.remove("copied"); }, 2000);
+      } catch {
+        copyBtn.textContent = "Copy failed — try Chrome";
+        setTimeout(() => { copyBtn.textContent = "Copy image"; copyBtn.classList.remove("copied"); }, 3000);
+      }
+    }, "image/png");
   }
+
+  loadImage(imgIndex);
 </script>
 </body>
 </html>
